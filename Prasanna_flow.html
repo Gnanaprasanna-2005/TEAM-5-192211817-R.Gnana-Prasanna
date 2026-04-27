@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prasanna – Load Phase · Cloud Ninjas ETL</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060b14;
+    --surface: #0d1729;
+    --surface2: #111e35;
+    --accent: #00d4ff;
+    --accent2: #7b2fff;
+    --accent3: #ff6b35;
+    --gold: #f5c542;
+    --green: #00ff88;
+    --red: #ff4466;
+    --text: #c8dff5;
+    --muted: #5a7a9f;
+    --border: rgba(0,212,255,0.18);
+    --glow: 0 0 20px rgba(0,212,255,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 60px 20px 50px;
+    position: relative;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--green), transparent);
+  }
+  .hero-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #00c97a, var(--accent));
+    padding: 4px 18px;
+    border-radius: 2px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 20px;
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+  @keyframes pulse-badge {
+    0%,100% { box-shadow: 0 0 10px rgba(0,255,136,0.4); }
+    50% { box-shadow: 0 0 24px rgba(0,212,255,0.6); }
+  }
+  .hero h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 900;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #fff 30%, var(--green) 70%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .hero-sub {
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--green);
+    font-size: 13px;
+    letter-spacing: 4px;
+    margin-bottom: 16px;
+    opacity: 0.85;
+  }
+  .hero-owner {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid rgba(0,255,136,0.25);
+    border-radius: 30px;
+    padding: 10px 24px;
+    margin-top: 14px;
+  }
+  .owner-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent3);
+    box-shadow: 0 0 8px var(--accent3);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .owner-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+  .owner-role {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--green);
+    letter-spacing: 2px;
+  }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .section-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px 30px;
+    margin: 20px 0;
+  }
+
+  /* ── OVERVIEW CARD ── */
+  .overview-card {
+    background: var(--surface);
+    border: 1px solid rgba(0,255,136,0.2);
+    border-radius: 10px;
+    padding: 28px 30px;
+    margin: 20px 0;
+    box-shadow: 0 0 30px rgba(0,255,136,0.05);
+  }
+
+  /* ── MAPPING CARD ── */
+  .mapping-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+    transition: box-shadow 0.25s;
+  }
+  .mapping-card:hover { box-shadow: 0 0 24px rgba(0,212,255,0.12); }
+  .mapping-header {
+    background: var(--surface2);
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .mapping-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    background: rgba(0,255,136,0.12);
+    color: var(--green);
+    border: 1px solid rgba(0,255,136,0.25);
+    border-radius: 4px;
+    padding: 3px 10px;
+    letter-spacing: 2px;
+  }
+  .mapping-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .mapping-body { padding: 24px; }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-diagram {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin: 20px 0;
+  }
+  .flow-node {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 20px;
+    text-align: center;
+    flex: 1;
+    min-width: 120px;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .flow-node:hover { transform: translateY(-2px); }
+  .flow-node.source { border-top: 2px solid var(--accent); }
+  .flow-node.target { border-top: 2px solid var(--green); }
+  .flow-node.transform { border-top: 2px solid var(--accent2); }
+  .flow-node.aggregator { border-top: 2px solid var(--gold); }
+  .flow-node.alert { border-top: 2px solid var(--red); }
+  .node-icon { font-size: 22px; margin-bottom: 6px; }
+  .node-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 4px;
+  }
+  .node-name {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .flow-arrow-h {
+    font-size: 20px;
+    color: var(--accent2);
+    padding: 0 6px;
+    opacity: 0.7;
+    flex-shrink: 0;
+    animation: flow-pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes flow-pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* ── TABLE SCHEMA ── */
+  .schema-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 16px 0;
+  }
+  .schema-header {
+    background: var(--surface2);
+    padding: 12px 18px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .schema-body { padding: 14px 18px; }
+  .col-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 12px;
+  }
+  .col-row:last-child { border-bottom: none; }
+  .col-name { font-family: 'Share Tech Mono', monospace; color: var(--text); }
+  .col-type { color: var(--muted); font-size: 11px; }
+  .col-note { color: var(--accent2); font-size: 10px; font-style: italic; }
+  .col-default { color: var(--gold); font-size: 10px; }
+
+  /* ── FORMULA BOX ── */
+  .formula-box {
+    background: rgba(0,0,0,0.45);
+    border: 1px solid rgba(0,212,255,0.25);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 14px 18px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    margin: 12px 0;
+    color: var(--gold);
+  }
+  .formula-label {
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 2px;
+  }
+  .formula-line {
+    color: #fff;
+    margin: 4px 0;
+  }
+  .formula-line .kw { color: var(--accent); }
+  .formula-line .fn { color: var(--gold); }
+  .formula-line .val { color: var(--green); }
+  .formula-line .comment { color: var(--muted); font-style: italic; }
+
+  /* ── PORT TABLE ── */
+  .port-table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+  .port-table th {
+    background: var(--surface2);
+    padding: 9px 14px;
+    text-align: left;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+  }
+  .port-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(0,212,255,0.06);
+    font-size: 12px;
+    font-family: 'Share Tech Mono', monospace;
+  }
+  .port-table tr:hover td { background: rgba(0,212,255,0.03); }
+  .port-table .arrow-cell { color: var(--accent2); font-size: 14px; text-align: center; }
+  .port-table .port-src { color: var(--text); }
+  .port-table .port-target { color: var(--green); font-weight: 700; }
+  .port-table .port-expr { color: var(--gold); }
+
+  /* ── AGGREGATOR GROUP ── */
+  .agg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 12px; margin: 14px 0; }
+  .agg-chip {
+    background: var(--surface2);
+    border: 1px solid rgba(245,197,66,0.2);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .agg-chip .agg-label { font-size: 10px; color: var(--muted); font-family: 'Share Tech Mono', monospace; letter-spacing: 1px; margin-bottom: 4px; }
+  .agg-chip .agg-expr { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--gold); }
+  .agg-chip .agg-target { font-size: 11px; color: var(--green); margin-top: 4px; }
+
+  /* ── ALERT SECTION ── */
+  .alert-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,68,102,0.3);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 20px 0;
+    box-shadow: 0 0 20px rgba(255,68,102,0.07);
+  }
+  .alert-header {
+    background: linear-gradient(135deg, rgba(255,68,102,0.15), rgba(255,107,53,0.1));
+    padding: 16px 24px;
+    border-bottom: 1px solid rgba(255,68,102,0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .alert-badge {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    background: rgba(255,68,102,0.2);
+    color: var(--red);
+    border: 1px solid rgba(255,68,102,0.4);
+    border-radius: 4px;
+    padding: 3px 10px;
+    letter-spacing: 2px;
+    animation: pulse-badge 2s ease-in-out infinite;
+  }
+  .alert-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 14px;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .alert-body { padding: 24px; }
+
+  /* ── STEP PILLS ── */
+  .steps-list { display: flex; flex-direction: column; gap: 12px; margin: 16px 0; }
+  .step-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .step-num-bubble {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(0,212,255,0.1);
+    border: 1px solid rgba(0,212,255,0.3);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  .step-content h5 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    color: #fff;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+  }
+  .step-content p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ── NOTIFICATION STEPS ── */
+  .notif-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 20px 0;
+  }
+  .notif-step {
+    display: flex;
+    gap: 18px;
+    position: relative;
+  }
+  .notif-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    bottom: -12px;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent2), transparent);
+    opacity: 0.4;
+  }
+  .notif-icon-wrap {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    background: var(--surface2);
+  }
+  .notif-content {
+    background: var(--surface2);
+    border: 1px solid rgba(0,212,255,0.1);
+    border-radius: 8px;
+    padding: 14px 18px;
+    flex: 1;
+    margin-bottom: 14px;
+  }
+  .notif-content h5 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    color: var(--accent);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+  .notif-content p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .notif-content .mono-tag {
+    display: inline-block;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 3px;
+    padding: 2px 8px;
+    color: var(--accent);
+    margin: 3px 2px;
+  }
+  .notif-content .mono-tag.green { background: rgba(0,255,136,0.08); border-color: rgba(0,255,136,0.2); color: var(--green); }
+  .notif-content .mono-tag.red { background: rgba(255,68,102,0.08); border-color: rgba(255,68,102,0.2); color: var(--red); }
+  .notif-content .mono-tag.gold { background: rgba(245,197,66,0.08); border-color: rgba(245,197,66,0.2); color: var(--gold); }
+
+  /* ── INFO ROW ── */
+  .info-row { display: flex; gap: 14px; flex-wrap: wrap; margin: 14px 0; }
+  .info-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 16px;
+    flex: 1;
+    min-width: 180px;
+  }
+  .info-chip .ic-label { font-size: 10px; color: var(--muted); font-family: 'Share Tech Mono', monospace; letter-spacing: 2px; margin-bottom: 4px; }
+  .info-chip .ic-value { font-size: 14px; color: var(--text); font-weight: 600; }
+  .info-chip .ic-value.green { color: var(--green); }
+  .info-chip .ic-value.gold { color: var(--gold); }
+  .info-chip .ic-value.red { color: var(--red); }
+
+  /* ── RESPONSIBILITY HIGHLIGHT ── */
+  .resp-highlight {
+    background: linear-gradient(135deg, rgba(255,107,53,0.08), rgba(0,212,255,0.04));
+    border: 1px solid rgba(255,107,53,0.25);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+  .resp-highlight h4 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    color: var(--accent3);
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+  }
+  .resp-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .resp-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,107,53,0.1);
+    border: 1px solid rgba(255,107,53,0.25);
+    border-radius: 20px;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .resp-tag .rt-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent3);
+  }
+
+  /* ── ANIMATIONS ── */
+  .mapping-card, .alert-card, .schema-card {
+    animation: fadeInUp 0.5s ease both;
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 60px;
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+  }
+  .footer-logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  .footer-sub { font-size: 12px; color: var(--muted); font-family: 'Share Tech Mono', monospace; }
+
+  .big-arrow {
+    text-align: center;
+    font-size: 24px;
+    color: var(--accent2);
+    opacity: 0.5;
+    margin: 6px 0;
+    animation: bob 1.5s ease-in-out infinite;
+  }
+  @keyframes bob { 0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)} }
+
+  .divider { height: 1px; background: var(--border); margin: 32px 0; opacity: 0.5; }
+
+  .tag-green { display: inline-block; background: rgba(0,255,136,0.1); border: 1px solid rgba(0,255,136,0.25); border-radius: 3px; padding: 2px 8px; font-size: 11px; color: var(--green); font-family: 'Share Tech Mono', monospace; }
+  .tag-blue  { display: inline-block; background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);  border-radius: 3px; padding: 2px 8px; font-size: 11px; color: var(--accent);  font-family: 'Share Tech Mono', monospace; }
+  .tag-gold  { display: inline-block; background: rgba(245,197,66,0.08); border: 1px solid rgba(245,197,66,0.2); border-radius: 3px; padding: 2px 8px; font-size: 11px; color: var(--gold);   font-family: 'Share Tech Mono', monospace; }
+  .tag-red   { display: inline-block; background: rgba(255,68,102,0.08);  border: 1px solid rgba(255,68,102,0.2);  border-radius: 3px; padding: 2px 8px; font-size: 11px; color: var(--red);    font-family: 'Share Tech Mono', monospace; }
+</style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <!-- ══════════════════════════════════════
+       HERO
+  ═══════════════════════════════════════ -->
+  <div class="hero">
+    <div class="hero-badge">🥷 Cloud Ninjas · Load Phase</div>
+    <h1>PRASANNA<br>ETL FLOW</h1>
+    <div class="hero-sub">// MAPPING 1 · MAPPING 2 · NOTIFICATION ALERT //</div>
+    <div class="hero-owner">
+      <div class="owner-dot"></div>
+      <div>
+        <div class="owner-name">PRASANNA</div>
+        <div class="owner-role">ETL · Load Phase Engineer</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       RESPONSIBILITY OVERVIEW
+  ═══════════════════════════════════════ -->
+  <div style="margin-top:50px;">
+    <div class="section-label">⬡ PRASANNA'S RESPONSIBILITIES</div>
+    <div class="resp-highlight">
+      <h4>LOAD PHASE · INFORMATICA COMPONENTS</h4>
+      <div class="resp-tags">
+        <span class="resp-tag"><span class="rt-dot"></span>Target Definition Setup</span>
+        <span class="resp-tag"><span class="rt-dot"></span>Staging Table Load (STG_TOWER_MASTER)</span>
+        <span class="resp-tag"><span class="rt-dot"></span>Daily Call Summary Mapping</span>
+        <span class="resp-tag"><span class="rt-dot"></span>Session Configuration</span>
+        <span class="resp-tag"><span class="rt-dot"></span>Workflow Monitor</span>
+        <span class="resp-tag"><span class="rt-dot"></span>Notification Alert Setup</span>
+        <span class="resp-tag"><span class="rt-dot"></span>Audit Log Capture</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MAPPING 1
+  ═══════════════════════════════════════ -->
+  <div style="margin-top:44px;">
+    <div class="section-label">⬡ MAPPING 1</div>
+    <div class="mapping-card">
+      <div class="mapping-header">
+        <span class="mapping-num">MAPPING 1</span>
+        <span class="mapping-title">CUSTOMER_MASTER → STG_TOWER_MASTER</span>
+      </div>
+      <div class="mapping-body">
+
+        <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">
+          Load <span style="color:var(--accent); font-weight:700;">CUSTOMER_MASTER</span> source data directly into the staging table
+          <span style="color:var(--green); font-weight:700;">STG_TOWER_MASTER</span>.
+          This is a direct source-to-target load — no transformations required.
+        </p>
+
+        <!-- Flow -->
+        <div style="margin-bottom:20px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:3px; margin-bottom:10px;">INFORMATICA FLOW</div>
+          <div class="flow-diagram">
+            <div class="flow-node source">
+              <div class="node-icon">📋</div>
+              <div class="node-label">SOURCE</div>
+              <div class="node-name">CUSTOMER_MASTER</div>
+            </div>
+            <div class="flow-arrow-h">→</div>
+            <div class="flow-node transform">
+              <div class="node-icon">🔌</div>
+              <div class="node-label">COMPONENT</div>
+              <div class="node-name">SOURCE QUALIFIER</div>
+            </div>
+            <div class="flow-arrow-h">→</div>
+            <div class="flow-node target">
+              <div class="node-icon">🗄️</div>
+              <div class="node-label">TARGET</div>
+              <div class="node-name">STG_TOWER_MASTER</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Target Table DDL -->
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:3px; margin-bottom:10px;">TARGET TABLE — DDL</div>
+        <div class="schema-card">
+          <div class="schema-header">
+            🗄️ CREATE TABLE STG_TOWER_MASTER
+          </div>
+          <div class="schema-body">
+            <div class="col-row">
+              <span class="col-name">TOWER_ID</span>
+              <span class="col-type">VARCHAR2(20)</span>
+              <span class="tag-blue">TOWER IDENTIFIER</span>
+            </div>
+            <div class="col-row">
+              <span class="col-name">REGION</span>
+              <span class="col-type">VARCHAR2(50)</span>
+              <span style="color:var(--muted); font-size:11px;">Geographic Region</span>
+            </div>
+            <div class="col-row">
+              <span class="col-name">CITY</span>
+              <span class="col-type">VARCHAR2(50)</span>
+              <span style="color:var(--muted); font-size:11px;">City Name</span>
+            </div>
+            <div class="col-row">
+              <span class="col-name">LOAD_DATE</span>
+              <span class="col-type">DATE</span>
+              <span class="tag-gold">DEFAULT SYSDATE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Column Mapping -->
+        <div style="margin-top:20px; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:3px; margin-bottom:10px;">COLUMN MAPPING</div>
+        <table class="port-table">
+          <thead>
+            <tr>
+              <th>SOURCE FIELD</th>
+              <th style="text-align:center;">→</th>
+              <th>TARGET COLUMN</th>
+              <th>NOTES</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="port-src">TowerID</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">TOWER_ID</td>
+              <td style="color:var(--muted); font-size:11px;">Direct pass-through</td>
+            </tr>
+            <tr>
+              <td class="port-src">Region</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">REGION</td>
+              <td style="color:var(--muted); font-size:11px;">Direct pass-through</td>
+            </tr>
+            <tr>
+              <td class="port-src">City</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">CITY</td>
+              <td style="color:var(--muted); font-size:11px;">Direct pass-through</td>
+            </tr>
+            <tr>
+              <td class="port-src">—</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">LOAD_DATE</td>
+              <td style="color:var(--gold); font-size:11px;">Auto: DEFAULT SYSDATE</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       MAPPING 2
+  ═══════════════════════════════════════ -->
+  <div style="margin-top:44px;">
+    <div class="section-label">⬡ MAPPING 2 — USE CASE 1</div>
+    <div class="mapping-card">
+      <div class="mapping-header">
+        <span class="mapping-num">MAPPING 2</span>
+        <span class="mapping-title">m_Daily_Call_Summary — Daily Call Volume Summary</span>
+      </div>
+      <div class="mapping-body">
+
+        <p style="color:var(--muted); font-size:13px; margin-bottom:20px;">
+          Reads from <span style="color:var(--accent); font-weight:700;">FACT_CDR_FINAL</span>, strips time from the timestamp,
+          aggregates daily call metrics, and loads results into
+          <span style="color:var(--green); font-weight:700;">DAILY_CALL_SUMMARY</span>.
+        </p>
+
+        <!-- Info row -->
+        <div class="info-row" style="margin-bottom:20px;">
+          <div class="info-chip">
+            <div class="ic-label">MAPPING NAME</div>
+            <div class="ic-value" style="font-family:'Share Tech Mono',monospace; font-size:13px;">m_Daily_Call_Summary</div>
+          </div>
+          <div class="info-chip">
+            <div class="ic-label">SOURCE TABLE</div>
+            <div class="ic-value green" style="font-family:'Share Tech Mono',monospace; font-size:13px;">FACT_CDR_FINAL</div>
+          </div>
+          <div class="info-chip">
+            <div class="ic-label">TARGET TABLE</div>
+            <div class="ic-value green" style="font-family:'Share Tech Mono',monospace; font-size:13px;">DAILY_CALL_SUMMARY</div>
+          </div>
+        </div>
+
+        <!-- Informatica Flow -->
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:3px; margin-bottom:10px;">INFORMATICA FLOW</div>
+        <div class="flow-diagram">
+          <div class="flow-node source">
+            <div class="node-icon">📊</div>
+            <div class="node-label">SOURCE</div>
+            <div class="node-name">FACT_CDR_FINAL</div>
+          </div>
+          <div class="flow-arrow-h">→</div>
+          <div class="flow-node transform">
+            <div class="node-icon">⚡</div>
+            <div class="node-label">EXPRESSION</div>
+            <div class="node-name">DATE STRIP</div>
+          </div>
+          <div class="flow-arrow-h">→</div>
+          <div class="flow-node aggregator">
+            <div class="node-icon">🔢</div>
+            <div class="node-label">AGGREGATOR</div>
+            <div class="node-name">GROUP BY DATE</div>
+          </div>
+          <div class="flow-arrow-h">→</div>
+          <div class="flow-node transform">
+            <div class="node-icon">➗</div>
+            <div class="node-label">EXPRESSION</div>
+            <div class="node-name">AVG CALC</div>
+          </div>
+          <div class="flow-arrow-h">→</div>
+          <div class="flow-node target">
+            <div class="node-icon">🗄️</div>
+            <div class="node-label">TARGET</div>
+            <div class="node-name">DAILY_CALL_SUMMARY</div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- STEP 1: Expression -->
+        <div style="margin-bottom:24px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+            <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#fff; background:rgba(123,47,255,0.15); border:1px solid rgba(123,47,255,0.3); padding:3px 12px; border-radius:4px;">STEP 1 · EXPRESSION TRANSFORMATION</span>
+          </div>
+          <p style="color:var(--muted); font-size:13px; margin-bottom:12px;">
+            Strip the time component from <span class="tag-blue">CALL_TIMESTAMP</span> to get a pure date for grouping.
+          </p>
+          <div class="formula-box">
+            <div class="formula-label">OUTPUT PORT · EXPRESSION FORMULA</div>
+            <div class="formula-line">
+              <span class="kw">O_CALL_DATE</span> =
+              <span class="fn">TO_DATE</span>(
+                <span class="fn">TO_CHAR</span>(
+                  <span class="val">CALL_TIMESTAMP</span>,
+                  <span style="color:var(--accent2);">'DD-MON-YYYY'</span>
+                ),
+              <span style="color:var(--accent2);">'DD-MON-YYYY'</span>)
+            </div>
+            <div class="formula-line comment" style="margin-top:6px;">-- Removes the time portion from timestamp → pure DATE</div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Aggregator -->
+        <div style="margin-bottom:24px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+            <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#fff; background:rgba(245,197,66,0.12); border:1px solid rgba(245,197,66,0.3); padding:3px 12px; border-radius:4px;">STEP 2 · AGGREGATOR TRANSFORMATION</span>
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <span class="tag-blue" style="margin-right:8px;">GROUP BY</span>
+            <span style="font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--gold);">O_CALL_DATE</span>
+          </div>
+
+          <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:2px; margin-bottom:10px; margin-top:14px;">AGGREGATED OUTPUT PORTS</div>
+          <div class="agg-grid">
+            <div class="agg-chip">
+              <div class="agg-label">EXPRESSION</div>
+              <div class="agg-expr">COUNT(DISTINCT CALLER)</div>
+              <div class="agg-target">→ DAILY_ACTIVE_CUSTOMERS</div>
+            </div>
+            <div class="agg-chip">
+              <div class="agg-label">EXPRESSION</div>
+              <div class="agg-expr">COUNT(CALL_ID)</div>
+              <div class="agg-target">→ DAILY_CALL_VOLUME</div>
+            </div>
+            <div class="agg-chip">
+              <div class="agg-label">EXPRESSION</div>
+              <div class="agg-expr">MAX(DURATION)</div>
+              <div class="agg-target">→ PEAK_CALL_DURATION</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: Post-Agg Expression -->
+        <div style="margin-bottom:24px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+            <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#fff; background:rgba(123,47,255,0.15); border:1px solid rgba(123,47,255,0.3); padding:3px 12px; border-radius:4px;">STEP 3 · EXPRESSION (AFTER AGGREGATOR)</span>
+          </div>
+          <p style="color:var(--muted); font-size:13px; margin-bottom:12px;">
+            Calculate the average calls per customer using the aggregated values.
+          </p>
+          <div class="formula-box">
+            <div class="formula-label">DERIVED METRIC · AVG CALLS PER CUSTOMER</div>
+            <div class="formula-line">
+              <span class="kw">AVG_CALLS_PER_CUSTOMER</span> =
+              <span class="val">DAILY_CALL_VOLUME</span>
+              <span style="color:#fff;"> / </span>
+              <span class="val">DAILY_ACTIVE_CUSTOMERS</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Port Mapping Table -->
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:3px; margin-bottom:10px;">FINAL PORT → TARGET COLUMN MAPPING</div>
+        <table class="port-table">
+          <thead>
+            <tr>
+              <th>PORT / EXPRESSION</th>
+              <th style="text-align:center;">→</th>
+              <th>TARGET COLUMN (DAILY_CALL_SUMMARY)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="port-expr">O_CALL_DATE</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">CALL_DATE</td>
+            </tr>
+            <tr>
+              <td class="port-expr">COUNT(DISTINCT CALLER)</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">DAILY_ACTIVE_CUSTOMERS</td>
+            </tr>
+            <tr>
+              <td class="port-expr">COUNT(CALL_ID)</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">DAILY_CALL_VOLUME</td>
+            </tr>
+            <tr>
+              <td class="port-expr">MAX(DURATION)</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">PEAK_CALL_DURATION</td>
+            </tr>
+            <tr>
+              <td class="port-expr">DAILY_CALL_VOLUME / DAILY_ACTIVE_CUSTOMERS</td>
+              <td class="arrow-cell">→</td>
+              <td class="port-target">AVG_CALLS_PER_CUSTOMER</td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       TASK 3 — NOTIFICATION ALERT
+  ═══════════════════════════════════════ -->
+  <div style="margin-top:44px;">
+    <div class="section-label">⬡ TASK 3 — NOTIFICATION ALERT</div>
+    <div class="alert-card">
+      <div class="alert-header">
+        <span class="alert-badge">🔔 ALERT CONFIG</span>
+        <span class="alert-title">CUSTOMER_MASTER → STG_TOWER_MASTER · Load Notification</span>
+      </div>
+      <div class="alert-body">
+
+        <p style="color:var(--muted); font-size:13px; margin-bottom:22px;">
+          Configure an Informatica <strong style="color:#fff;">Post-Session Email Notification</strong> to automatically alert stakeholders
+          when the <span style="color:var(--accent); font-weight:700;">CUSTOMER_MASTER → STG_TOWER_MASTER</span> load session completes —
+          whether it succeeds or fails.
+        </p>
+
+        <!-- Notification Flow -->
+        <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:3px; margin-bottom:14px;">ALERT TRIGGER FLOW</div>
+
+        <div class="notif-flow">
+
+          <div class="notif-step">
+            <div class="notif-icon-wrap">⚙️</div>
+            <div class="notif-content">
+              <h5>STEP 1 · WORKFLOW SESSION RUNS</h5>
+              <p>The Informatica workflow executes the mapping that loads <span class="mono-tag">CUSTOMER_MASTER</span> into <span class="mono-tag green">STG_TOWER_MASTER</span>.</p>
+            </div>
+          </div>
+
+          <div class="notif-step">
+            <div class="notif-icon-wrap">🔍</div>
+            <div class="notif-content">
+              <h5>STEP 2 · SESSION STATUS IS EVALUATED</h5>
+              <p>Informatica Workflow Manager evaluates the session result:</p>
+              <div style="margin-top:8px;">
+                <span class="mono-tag green">SUCCESS</span>
+                <span class="mono-tag red">FAILURE</span>
+                <span class="mono-tag gold">PARTIAL SUCCESS</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="notif-step">
+            <div class="notif-icon-wrap">📧</div>
+            <div class="notif-content">
+              <h5>STEP 3 · EMAIL NOTIFICATION TRIGGERED (POST-SESSION)</h5>
+              <p>Configure inside <strong style="color:#fff;">Session Properties → Email</strong> tab in Informatica:</p>
+              <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                <div style="background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:6px; padding:10px 14px; flex:1; min-width:200px;">
+                  <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); margin-bottom:4px;">ON SUCCESS EMAIL</div>
+                  <div style="font-size:12px; color:var(--text);">Send load completion summary — row count, load date, session duration</div>
+                </div>
+                <div style="background:rgba(255,68,102,0.06); border:1px solid rgba(255,68,102,0.2); border-radius:6px; padding:10px 14px; flex:1; min-width:200px;">
+                  <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--red); margin-bottom:4px;">ON FAILURE EMAIL</div>
+                  <div style="font-size:12px; color:var(--text);">Send error details — error code, row rejected count, session log excerpt</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="notif-step">
+            <div class="notif-icon-wrap">📬</div>
+            <div class="notif-content">
+              <h5>STEP 4 · EMAIL BODY CONTENTS</h5>
+              <p>The notification email should include:</p>
+              <div style="margin-top:8px; display:flex; flex-wrap:wrap; gap:6px;">
+                <span class="mono-tag">Workflow Name</span>
+                <span class="mono-tag">Session Name</span>
+                <span class="mono-tag">Run Date &amp; Time</span>
+                <span class="mono-tag green">Rows Loaded Successfully</span>
+                <span class="mono-tag red">Rows Rejected</span>
+                <span class="mono-tag gold">Status: SUCCESS / FAILED</span>
+                <span class="mono-tag">Target: STG_TOWER_MASTER</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Configuration Note -->
+        <div style="margin-top:20px;">
+          <div style="font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:3px; margin-bottom:10px;">INFORMATICA CONFIGURATION PATH</div>
+          <div class="formula-box" style="border-left-color:var(--red);">
+            <div class="formula-label">WHERE TO CONFIGURE IN INFORMATICA</div>
+            <div class="formula-line">
+              <span class="kw">Workflow Manager</span>
+              <span style="color:var(--muted);"> → </span>
+              <span class="fn">Open Session</span>
+              <span style="color:var(--muted);"> → </span>
+              <span class="val">Properties Tab</span>
+              <span style="color:var(--muted);"> → </span>
+              <span style="color:var(--red);">Email Tab</span>
+            </div>
+            <div class="formula-line" style="margin-top:6px;">
+              <span class="kw">On Success</span><span style="color:var(--muted);">: </span>
+              <span style="color:var(--green);">Set recipient email + subject + body variables</span>
+            </div>
+            <div class="formula-line">
+              <span class="kw">On Failure</span><span style="color:var(--muted);">: </span>
+              <span style="color:var(--red);">Set recipient email + error body + $PMBadRowsFile</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert Summary Cards -->
+        <div style="margin-top:20px; font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--muted); letter-spacing:3px; margin-bottom:10px;">NOTIFICATION TRIGGERS SUMMARY</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
+          <div style="background:rgba(0,255,136,0.05); border:1px solid rgba(0,255,136,0.2); border-radius:8px; padding:16px;">
+            <div style="font-size:22px; margin-bottom:8px;">✅</div>
+            <div style="font-family:'Orbitron',sans-serif; font-size:11px; color:var(--green); margin-bottom:6px;">LOAD COMPLETED</div>
+            <div style="font-size:12px; color:var(--muted);">Alert fires when STG_TOWER_MASTER is fully loaded successfully. Includes row count and run timestamp.</div>
+          </div>
+          <div style="background:rgba(255,68,102,0.05); border:1px solid rgba(255,68,102,0.2); border-radius:8px; padding:16px;">
+            <div style="font-size:22px; margin-bottom:8px;">🚨</div>
+            <div style="font-family:'Orbitron',sans-serif; font-size:11px; color:var(--red); margin-bottom:6px;">PIPELINE FAILURE</div>
+            <div style="font-size:12px; color:var(--muted);">Alert fires if session fails during load. Sends error code and rejected row details for debugging.</div>
+          </div>
+          <div style="background:rgba(245,197,66,0.05); border:1px solid rgba(245,197,66,0.2); border-radius:8px; padding:16px;">
+            <div style="font-size:22px; margin-bottom:8px;">📊</div>
+            <div style="font-family:'Orbitron',sans-serif; font-size:11px; color:var(--gold); margin-bottom:6px;">RUN SUMMARY STATS</div>
+            <div style="font-size:12px; color:var(--muted);">Every notification includes source rows read, target rows loaded, and load date for audit purposes.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       SUMMARY
+  ═══════════════════════════════════════ -->
+  <div style="margin-top:44px;">
+    <div class="section-label">⬡ PRASANNA'S DELIVERABLES — SUMMARY</div>
+    <div class="section-box">
+      <div style="display:flex; flex-wrap:wrap; gap:0; align-items:stretch;">
+        <div style="flex:1; min-width:150px; text-align:center; padding:18px 12px; border-right:1px solid var(--border);">
+          <div style="font-size:30px; margin-bottom:8px;">🗄️</div>
+          <div style="font-family:'Orbitron',sans-serif; font-size:10px; color:var(--green); letter-spacing:1px; margin-bottom:6px;">MAPPING 1</div>
+          <div style="font-size:12px; color:var(--muted);">CUSTOMER_MASTER → STG_TOWER_MASTER</div>
+        </div>
+        <div style="display:flex; align-items:center; padding:0 8px; color:var(--accent2); font-size:20px;">→</div>
+        <div style="flex:1; min-width:150px; text-align:center; padding:18px 12px; border-right:1px solid var(--border);">
+          <div style="font-size:30px; margin-bottom:8px;">📈</div>
+          <div style="font-family:'Orbitron',sans-serif; font-size:10px; color:var(--gold); letter-spacing:1px; margin-bottom:6px;">MAPPING 2</div>
+          <div style="font-size:12px; color:var(--muted);">m_Daily_Call_Summary</div>
+        </div>
+        <div style="display:flex; align-items:center; padding:0 8px; color:var(--accent2); font-size:20px;">→</div>
+        <div style="flex:1; min-width:150px; text-align:center; padding:18px 12px;">
+          <div style="font-size:30px; margin-bottom:8px;">🔔</div>
+          <div style="font-family:'Orbitron',sans-serif; font-size:10px; color:var(--red); letter-spacing:1px; margin-bottom:6px;">TASK 3</div>
+          <div style="font-size:12px; color:var(--muted);">Notification Alert Setup</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">🥷 CLOUD NINJAS</div>
+    <div class="footer-sub">Prasanna · Load Phase · Telecom ETL Pipeline · Informatica · 2026</div>
+    <div style="margin-top:10px; font-size:11px; color:var(--muted); opacity:0.4; font-family:'Share Tech Mono',monospace;">
+      Ruchitha · Bhanu Teja · <strong style="color:var(--accent3); opacity:1;">Prasanna</strong> · Mansi
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
